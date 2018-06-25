@@ -3,11 +3,11 @@ package ru.javawebinar.topjava.util;
 import ru.javawebinar.topjava.model.UserMeal;
 import ru.javawebinar.topjava.model.UserMealWithExceed;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class UserMealsUtil {
     public static void main(String[] args) {
@@ -22,23 +22,18 @@ public class UserMealsUtil {
     }
 
     public static List<UserMealWithExceed> getFilteredWithExceeded(List<UserMeal> mealList, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
-        Map<LocalDate, List<UserMeal>> map = new HashMap<>();
         List<UserMealWithExceed> userMealWithExceeds = new ArrayList<>();
 
-        mealList.forEach(u -> map.merge(u.getDateTime().toLocalDate(), new ArrayList<>(Collections.singletonList(u)), (x, y) -> x.addAll(y) ? x : y));
+        mealList.stream().collect(Collectors.groupingBy(meal -> meal.getDateTime().toLocalDate()))
+                .entrySet()
+                .iterator()
+                .forEachRemaining(UserMealMap -> convertMap(startTime, endTime, userMealWithExceeds, UserMealMap.getValue(), UserMealMap.getValue().stream().mapToInt(UserMeal::getCalories).sum() > caloriesPerDay));
 
-        map.values().forEach(v -> {
-            if (v.stream().mapToInt(UserMeal::getCalories).sum() > caloriesPerDay) {
-                convertList(startTime, endTime, userMealWithExceeds, v, true);
-            } else {
-                convertList(startTime, endTime, userMealWithExceeds, v, false);
-            }
-        });
         return userMealWithExceeds;
     }
 
-    private static void convertList(LocalTime startTime, LocalTime endTime, List<UserMealWithExceed> userMealWithExceeds, List<UserMeal> v, boolean b) {
-        v.stream().filter(t -> TimeUtil.isBetween(t.getDateTime().toLocalTime(), startTime, endTime))
-                .forEach(c -> userMealWithExceeds.add(new UserMealWithExceed(c.getDateTime(), c.getDescription(), c.getCalories(), b)));
+    private static void convertMap(LocalTime startTime, LocalTime endTime, List<UserMealWithExceed> userMealWithExceeds, List<UserMeal> mealList, boolean b) {
+        mealList.stream().filter(time -> TimeUtil.isBetween(time.getDateTime().toLocalTime(), startTime, endTime))
+                .forEach(userMeal -> userMealWithExceeds.add(new UserMealWithExceed(userMeal.getDateTime(), userMeal.getDescription(), userMeal.getCalories(), b)));
     }
 }
