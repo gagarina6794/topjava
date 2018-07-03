@@ -20,8 +20,8 @@ public class Meal {
         this.calories = calories;
     }
 
-    public Meal(int id) {
-        this(id, null, null, 0);
+    public Meal(LocalDateTime dateTime, String description, int calories) {
+        this(null, dateTime, description, calories);
     }
 
     public void setId(Integer id) {

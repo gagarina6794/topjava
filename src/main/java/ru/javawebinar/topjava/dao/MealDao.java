@@ -4,9 +4,9 @@ import ru.javawebinar.topjava.model.Meal;
 
 import java.util.List;
 
-public interface Dao {
+public interface MealDao {
 
-    void save(Meal meal);
+    Meal save(Meal meal);
 
     Meal get(Integer id);
 

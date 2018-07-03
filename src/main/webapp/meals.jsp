@@ -17,11 +17,10 @@
 <form>
     <div class="container">
         <h2>Список еды</h2>
-        <button type="button" class="btn btn-outline-success align-self-md-start"><a href="meals?action=new">
+        <button type="button" class="btn btn-outline-success align-self-md-start"><a href="meals?id=${-1}&action=edit">
             Добавить</a></button>
     </div>
     <div class="card card-body">
-
 
         <div class="container">
             <table class="table table-hover bg-light text-black-50">

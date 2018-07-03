@@ -1,48 +1,53 @@
 package ru.javawebinar.topjava.dao;
 
-
+import org.slf4j.Logger;
 import ru.javawebinar.topjava.model.Meal;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class MapMealDao extends AbstractMealDao {
+import static org.slf4j.LoggerFactory.getLogger;
 
-    private Map<Integer, Meal> mapStorage = new ConcurrentHashMap<>();
+public class MapMealDao implements MealDao {
+    private static final Logger LOG = getLogger(MapMealDao.class);
+    private final Map<Integer, Meal> mapStorage = new ConcurrentHashMap<>();
+    private final AtomicInteger integer = new AtomicInteger(-1);
 
     @Override
-    protected Integer getIndex(Integer id) {
-        return id;
+    public Meal save(Meal meal) {
+        Objects.requireNonNull(meal, "Bad news, we received null for save!");
+        meal.setId(integer.incrementAndGet());
+        LOG.info("Save " + meal);
+        mapStorage.put(meal.getId(), meal);
+        return meal;
     }
 
     @Override
-    protected boolean checkIndex(Integer index) {
-        return mapStorage.containsKey(index);
+    public Meal get(Integer id) {
+        LOG.info("Get " + id);
+        return mapStorage.get(id);
     }
 
     @Override
-    protected Stream<Meal> getStream() {
-        return mapStorage.values().stream();
-    }
-
-    @Override
-    protected void doSave(Meal meal, Integer index) {
+    public void update(Meal meal) {
+        LOG.info("Update " + meal);
+        Objects.requireNonNull(meal, "Bad news, we received null for update!");
         mapStorage.put(meal.getId(), meal);
     }
 
     @Override
-    protected Meal doGet(Integer index) {
-        return mapStorage.get(index);
+    public void delete(Integer id) {
+        LOG.info("Delete " + id);
+        mapStorage.remove(id);
     }
 
     @Override
-    protected void doUpdate(Meal meal, Integer index) {
-        mapStorage.put(meal.getId(), meal);
-    }
-
-    @Override
-    protected void doDelete(Integer index) {
-        mapStorage.remove(index);
+    public List<Meal> getAll() {
+        LOG.info("getAll");
+        return new ArrayList<>(mapStorage.values());
     }
 }
