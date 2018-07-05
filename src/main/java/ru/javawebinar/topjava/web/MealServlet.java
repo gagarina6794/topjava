@@ -3,7 +3,7 @@ package ru.javawebinar.topjava.web;
 import org.slf4j.Logger;
 import ru.javawebinar.topjava.dao.MealDao;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.util.DateMeal;
+import ru.javawebinar.topjava.util.DataMeal;
 import ru.javawebinar.topjava.util.MealsUtil;
 
 import javax.servlet.ServletException;
@@ -19,29 +19,31 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 public class MealServlet extends HttpServlet {
     private static final Logger log = getLogger(MealServlet.class);
-    private static final MealDao storageMeals = DateMeal.getStorageMeals();
+    private static final MealDao storageMeals = DataMeal.getStorageMeals();
     private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws javax.servlet.ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        Integer id = Integer.valueOf(request.getParameter("id"));
-        Meal meal= storageMeals.get(id);
+        log.debug("doPost meals serlvlet");
+        String idGet = request.getParameter("id");
 
-        String description = request.getParameter("description");
-        int calories = Integer.valueOf(request.getParameter("calories"));
         String date = request.getParameter("date");
         LocalDateTime dateTime = LocalDateTime.parse(date, formatter);
+        String description = request.getParameter("description");
+        int calories = Integer.valueOf(request.getParameter("calories"));
 
-        meal.setCalories(calories);
-        meal.setDescription(description);
-        meal.setDateTime(dateTime);
+        if (!idGet.equals("-1")) {
+            storageMeals.update(new Meal(Integer.valueOf(idGet), dateTime, description, calories));
+        } else {
+            storageMeals.save(new Meal(dateTime, description, calories));
+        }
 
-        storageMeals.update(meal);
         response.sendRedirect("meals");
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        log.debug("redirect to meals");
         String id = request.getParameter("id");
         String action = request.getParameter("action");
         if (action == null) {
@@ -59,7 +61,8 @@ public class MealServlet extends HttpServlet {
                 return;
             case "edit":
                 if (id.equals("-1")) {
-                    meal = storageMeals.save(new Meal());
+                    meal = new Meal();
+                    meal.setId(-1);
                 } else {
                     meal = storageMeals.get(Integer.valueOf(id));
                 }
@@ -68,6 +71,6 @@ public class MealServlet extends HttpServlet {
                 throw new IllegalArgumentException("Action " + action + " is illegal");
         }
         request.setAttribute("meal", meal);
-        request.getRequestDispatcher("edit.jsp").forward(request, response);
+        request.getRequestDispatcher("/edit.jsp").forward(request, response);
     }
 }

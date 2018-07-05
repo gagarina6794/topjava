@@ -7,7 +7,7 @@ import ru.javawebinar.topjava.model.Meal;
 import java.time.LocalDateTime;
 import java.time.Month;
 
-public class DateMeal {
+public class DataMeal {
 
     private static final MealDao storageMeals = new MapMealDao();
 
