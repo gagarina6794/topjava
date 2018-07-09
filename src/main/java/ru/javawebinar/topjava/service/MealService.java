@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface MealService {
 
-    Meal create(Meal meal) throws NotFoundException;
+    Meal create(Meal meal);
 
     void delete(int id) throws NotFoundException;
 
@@ -20,7 +20,7 @@ public interface MealService {
 
     List<MealWithExceed> getAll();
 
-    public List<MealWithExceed> filterTime(LocalDate dateBegin, LocalDate dateEnd, LocalTime timeBegin, LocalTime timeEnd);
+    List<MealWithExceed> filterTime(LocalDate dateBegin, LocalDate dateEnd, LocalTime timeBegin, LocalTime timeEnd);
 
-    public List<MealWithExceed> filterString(String str);
+    List<MealWithExceed> filterString(String str);
 }

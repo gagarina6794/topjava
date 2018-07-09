@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.to.MealWithExceed;
+import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
+import ru.javawebinar.topjava.web.meal.DTO;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -25,7 +27,7 @@ public class MealServiceImpl implements MealService {
 
     @Override
     public Meal create(Meal meal) {
-       return repository.save(meal);
+        return repository.save(meal);
     }
 
     @Override
@@ -45,16 +47,16 @@ public class MealServiceImpl implements MealService {
 
     @Override
     public List<MealWithExceed> getAll() {
-        return repository.getAll();
+        return DTO.getWithExceeded(repository.getAll(), MealsUtil.DEFAULT_CALORIES_PER_DAY);
     }
 
     @Override
     public List<MealWithExceed> filterTime(LocalDate dateBegin, LocalDate dateEnd, LocalTime timeBegin, LocalTime timeEnd) {
-        return repository.filterTime(dateBegin, dateEnd, timeBegin, timeEnd);
+        return DTO.getWithExceeded(repository.filterTime(dateBegin, dateEnd, timeBegin, timeEnd), MealsUtil.DEFAULT_CALORIES_PER_DAY);
     }
 
     @Override
     public List<MealWithExceed> filterString(String str) {
-        return repository.filterString(str);
+        return DTO.getWithExceeded(repository.filterString(str), MealsUtil.DEFAULT_CALORIES_PER_DAY);
     }
 }

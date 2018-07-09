@@ -1,7 +1,6 @@
 package ru.javawebinar.topjava.util;
 
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.to.MealWithExceed;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,9 +15,9 @@ public class DateTimeUtil {
         return lt.compareTo(startTime) >= 0 && lt.compareTo(endTime) <= 0;
     }
 
-    public static boolean isBetweenDateTime(MealWithExceed meal, LocalDate dateBegin, LocalDate dateEnd, LocalTime timeBegin, LocalTime timeEnd) {
-        return meal.getDateTime().toLocalDate().compareTo(dateBegin) >= 0 && meal.getDateTime().toLocalDate().compareTo(dateEnd) <= 0
-                && meal.getDateTime().toLocalTime().compareTo(timeBegin) >= 0 && meal.getDateTime().toLocalTime().compareTo(timeEnd) <= 0;
+    public static boolean isBetweenDateTime(Meal meal, LocalDate dateBegin, LocalDate dateEnd, LocalTime timeBegin, LocalTime timeEnd) {
+        return meal.getDate().compareTo(dateBegin) >= 0 && meal.getDate().compareTo(dateEnd) <= 0
+                && meal.getTime().compareTo(timeBegin) >= 0 && meal.getTime().compareTo(timeEnd) <= 0;
     }
 
     public static String toString(LocalDateTime ldt) {

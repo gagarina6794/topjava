@@ -1,3 +1,4 @@
+<%@ page import="java.time.LocalDate" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -18,7 +19,12 @@
 </head>
 <body>
 <section>
-    <h3><a href="index.html">Home</a></h3>
+    <form method="post" action="meals">
+        <input type="hidden" name="id" value="null">
+
+        <%--<a href="meals?action=cancel" onclick="window.open('index.html')">Open Two Links With One Click</a>--%>
+
+        <h3><a href="index.html">Home</a></h3>
     <h2>Meals</h2>
     <a href="meals?action=create">Add Meal</a>
     <hr/>
@@ -48,6 +54,24 @@
             </tr>
         </c:forEach>
     </table>
+<hr>
+    <table>
+        <tr>
+            <jsp:useBean id="datefilter" scope="request"  type="ru.javawebinar.topjava.util.DateRepository"/>
+            <td>От даты: <input type="date" name="datebegin" value="${datefilter.getDate("dateBegin")}"></td>
+            <td>Oт времени: <input type="time" name="timebegin" value="${datefilter.getTime("timeBegin")}"></td>
+        </tr>
+        <tr>
+            <td>До даты: <input type="date" name="dateend" value="${datefilter.getDate("dateEnd")}"></td>
+            <td>До времени: <input type="time" name="timeend"  value="${datefilter.getTime("timeEnd")}"></td>
+        </tr>
+        <tr>
+            <td><button><a href="meals?action=cancel">Отменить</a></button></td>
+            <td><button type="submit">Фильтровать</button></td>
+        </tr>
+    </table>
+        <hr>
+    </form>
 </section>
 </body>
 </html>

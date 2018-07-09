@@ -6,7 +6,6 @@ import ru.javawebinar.topjava.to.MealWithExceed;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -42,22 +41,22 @@ public class MealRestController extends AbstractMealController {
         if (dateBegin == null) {
             dateBegin = super.getAll().stream()
                     .map(mealWithExceed -> mealWithExceed.getDateTime().toLocalDate())
-                    .min(LocalDate::compareTo).get();
+                    .min(LocalDate::compareTo).orElse(null);
         }
         if (timeBegin == null) {
             timeBegin = super.getAll().stream()
                     .map(mealWithExceed -> mealWithExceed.getDateTime().toLocalTime())
-                    .min(LocalTime::compareTo).get();
+                    .min(LocalTime::compareTo).orElse(null);
         }
         if (dateEnd == null) {
             dateEnd = super.getAll().stream()
                     .map(mealWithExceed -> mealWithExceed.getDateTime().toLocalDate())
-                    .max(LocalDate::compareTo).get();
+                    .max(LocalDate::compareTo).orElse(null);
         }
         if (timeEnd == null) {
             timeEnd = super.getAll().stream()
                     .map(mealWithExceed -> mealWithExceed.getDateTime().toLocalTime())
-                    .max(LocalTime::compareTo).get();
+                    .max(LocalTime::compareTo).orElse(null);
         }
         return super.filterTime(dateBegin, dateEnd, timeBegin, timeEnd);
     }
