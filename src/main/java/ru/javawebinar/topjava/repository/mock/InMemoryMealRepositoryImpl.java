@@ -8,8 +8,6 @@ import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.web.SecurityUtil;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,73 +16,70 @@ import java.util.stream.Collectors;
 @Repository
 public class InMemoryMealRepositoryImpl implements MealRepository {
 
-    private Map<String, Meal> repository = new ConcurrentHashMap<>();
+    private Map<Integer, Map<Integer, Meal>> repository = new ConcurrentHashMap<>();
     private AtomicInteger counter = new AtomicInteger(0);
 
     {
-        MealsUtil.MEALS.forEach(this::save);
+        MealsUtil.MEALS.forEach(meal -> save(meal, SecurityUtil.authUserId()));
     }
 
     @Override
-    public Meal save(Meal meal) {
+    public Meal save(Meal meal, int userId) {
         if (meal != null) {
+            Map<Integer, Meal> map;
+            if (repository.get(userId) != null) {
+                map = new ConcurrentHashMap<>(repository.get(userId));
+            } else {
+                map = new ConcurrentHashMap<>();
+            }
             if (meal.isNew()) {
                 meal.setId(counter.incrementAndGet());
-                repository.put(meal.getId() + "_" + SecurityUtil.authUserId(), meal);
+                map.put(meal.getId(), meal);
+                repository.put(userId, map);
                 return meal;
             }
-            return repository.computeIfPresent(meal.getId() + "_" + SecurityUtil.authUserId(), (id, oldMeal) -> meal);
+            Meal mealUpdate = map.computeIfPresent(meal.getId(), (id, oldMeal) -> meal);
+            repository.put(userId, map);
+            return mealUpdate;
         }
         return null;
     }
 
     @Override
-    public boolean delete(int id) {
-        return (repository.remove(id + "_" + SecurityUtil.authUserId()) != null);
+    public boolean delete(int id, int userId) {
+        Map<Integer, Meal> map = repository.get(userId);
+        return (map.remove(id) != null);
     }
 
     @Override
-    public Meal get(int id) {
-        Meal meal = repository.get(id + "_" + SecurityUtil.authUserId());
-        if (meal != null) {
-            return (meal.getId() == id ? meal : null);
+    public Meal get(int id, int userId) {
+        return repository.get(userId).get(id);
+    }
+
+    @Override
+    public List<Meal> getAll(int userId) {
+        Map<Integer, Meal> map;
+        if (repository.get(userId) != null) {
+            map = new ConcurrentHashMap<>(repository.get(userId));
+        } else {
+            map = new ConcurrentHashMap<>();
         }
-        return null;
-    }
-
-    @Override
-    public List<Meal> getAll() {
-        List<Meal> meals = new ArrayList<>();
-        for (Map.Entry<String, Meal> mealEntry : repository.entrySet()) {
-            if (mealEntry.getKey().endsWith("_" + SecurityUtil.authUserId())) {
-                meals.add(mealEntry.getValue());
-            }
+        if (!map.isEmpty()) {
+            return map.values().stream().sorted(Comparator.comparing(Meal::getDateTime).reversed()).collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
         }
-        meals.sort(Comparator.comparing(Meal::getDateTime).reversed());
-        return meals;
     }
 
     @Override
-    public List<Meal> filterTime(LocalDate dateBegin, LocalDate dateEnd, LocalTime timeBegin, LocalTime timeEnd) {
-        if (!getAll().isEmpty()) {
-            return getAll().stream()
-                    .filter(meal -> DateTimeUtil.isBetweenDateTime(meal, dateBegin, dateEnd, timeBegin, timeEnd))
-                    .collect(Collectors.toList());
-        }
-        return new ArrayList<>();
-    }
-
-    @Override
-    public List<Meal> filterString(String str) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        if (!getAll().isEmpty()) {
-            return getAll().stream()
-                    .filter(meal -> meal.getDateTime().format(formatter).contains(str)
-                            || meal.getDescription().contains(str)
-                            || String.valueOf(meal.getCalories()).contains(str))
+    public List<Meal> filterDate(int userId, LocalDate dateBegin, LocalDate dateEnd) {
+        if (!getAll(userId).isEmpty()) {
+            return getAll(userId).stream()
+                    .filter(meal -> DateTimeUtil.isBetween(meal.getDate(), dateBegin, dateEnd))
                     .collect(Collectors.toList());
         }
         return new ArrayList<>();
     }
 }
+
 

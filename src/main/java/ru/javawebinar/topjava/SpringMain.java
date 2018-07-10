@@ -9,8 +9,10 @@ import ru.javawebinar.topjava.web.SecurityUtil;
 import ru.javawebinar.topjava.web.meal.MealRestController;
 import ru.javawebinar.topjava.web.user.AdminRestController;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+import java.time.LocalTime;
 import java.time.Month;
 import java.util.Arrays;
 
@@ -27,17 +29,21 @@ public class SpringMain {
             SecurityUtil.setAuthUserId(1);
             mealRestController.create(new Meal(LocalDateTime.of(2015, Month.MAY, 31, 20, 0), "Ужин", 510));
             mealRestController.create(new Meal(LocalDateTime.of(2015, Month.MAY, 30, 22, 15), "Обед8", 502));
+
             SecurityUtil.setAuthUserId(2);
             mealRestController.create(new Meal(LocalDateTime.of(2015, Month.MAY, 31, 22, 59), "Завтрак", 402));
             mealRestController.create(new Meal(LocalDateTime.of(2015, Month.MAY, 31, 22, 0), "Обед3", 2504));
+
             System.out.println("Id user = " + SecurityUtil.authUserId());
-            System.out.println("-------null String--------");
-            //mealRestController.filterString("ед").forEach(System.out::println);
-            System.out.println("-------null String--------");
-            SecurityUtil.setAuthUserId(0);
+
+
+            SecurityUtil.setAuthUserId(1);
+
+            //Meal meal = new Meal(9, LocalDateTime.of(2018, Month.MAY, 31, 22, 0), "newMeal", 1331);
+            // mealRestController.update(meal,9);
             System.out.println("-------null Time--------");
-            //   mealRestController.filterTime(LocalDate.of(2015, Month.MAY, 31), LocalDate.of(2015, Month.MAY, 31),
-            //   LocalTime.of(7, 5), LocalTime.of(22, 59)).forEach(System.out::println);
+            mealRestController.filterTime(LocalDate.of(2015, Month.MAY, 31), LocalDate.of(2015, Month.MAY, 31),
+                    LocalTime.of(20, 00), LocalTime.of(22, 59)).forEach(System.out::println);
             System.out.println("-------null Time--------");
             mealRestController.getAll().forEach(System.out::println);
 

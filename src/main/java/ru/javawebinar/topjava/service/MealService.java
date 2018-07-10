@@ -10,17 +10,15 @@ import java.util.List;
 
 public interface MealService {
 
-    Meal create(Meal meal);
+    Meal create(Meal meal, int userId);
 
-    void delete(int id) throws NotFoundException;
+    void delete(int id, int userId) throws NotFoundException;
 
-    Meal get(int id) throws NotFoundException;
+    Meal get(int id, int userId) throws NotFoundException;
 
-    void update(Meal meal);
+    void update(Meal meal, int userId);
 
-    List<MealWithExceed> getAll();
+    List<MealWithExceed> getAll(int userId);
 
-    List<MealWithExceed> filterTime(LocalDate dateBegin, LocalDate dateEnd, LocalTime timeBegin, LocalTime timeEnd);
-
-    List<MealWithExceed> filterString(String str);
+    List<MealWithExceed> filterDate(int userId, LocalDate dateBegin, LocalDate dateEnd);
 }

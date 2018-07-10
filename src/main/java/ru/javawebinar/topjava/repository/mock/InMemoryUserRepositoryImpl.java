@@ -1,9 +1,12 @@
 package ru.javawebinar.topjava.repository.mock;
 
 import org.springframework.stereotype.Repository;
+import ru.javawebinar.topjava.model.AbstractBaseEntity;
+import ru.javawebinar.topjava.model.AbstractNamedEntity;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,15 +40,14 @@ public class InMemoryUserRepositoryImpl implements UserRepository {
     @Override
     public User get(int id) {
         User user = repository.get(id);
-        if (user != null) {
-            return (user.getId() == id ? user : null);
-        }
-        return null;
+        return (user != null && user.getId() == id ? user : null);
     }
 
     @Override
     public List<User> getAll() {
-        return repository.values().stream().sorted().collect(Collectors.toList());
+        return repository.values().stream()
+                .sorted(Comparator.comparing(AbstractNamedEntity::getName).thenComparing(AbstractBaseEntity::getId))
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -1,71 +1,89 @@
 package ru.javawebinar.topjava.web.meal;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.to.MealWithExceed;
+import ru.javawebinar.topjava.util.DateTimeUtil;
+import ru.javawebinar.topjava.web.SecurityUtil;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
 
 @Controller
-public class MealRestController extends AbstractMealController {
+public class MealRestController {
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
-    @Override
+    @Autowired
+    private MealService service;
+
     public List<MealWithExceed> getAll() {
-        return super.getAll();
+        log.info("getAll");
+        return service.getAll(SecurityUtil.authUserId());
     }
 
-    @Override
     public Meal get(int id) {
-        return super.get(id);
+        log.info("get {}", id);
+        return service.get(id, SecurityUtil.authUserId());
     }
 
-    @Override
     public Meal create(Meal meal) {
-        return super.create(meal);
+        log.info("create {}", meal);
+        return service.create(meal, SecurityUtil.authUserId());
     }
 
-    @Override
     public void delete(int id) {
-        super.delete(id);
+        log.info("delete {}", id);
+        service.delete(id, SecurityUtil.authUserId());
     }
 
-    @Override
     public void update(Meal meal, int id) {
-        super.update(meal, id);
+        log.info("update {} with id={}", meal, id);
+        assureIdConsistent(meal, id);
+        service.update(meal, SecurityUtil.authUserId());
     }
 
-    @Override
     public List<MealWithExceed> filterTime(LocalDate dateBegin, LocalDate dateEnd, LocalTime timeBegin, LocalTime timeEnd) {
+        log.info("filterTime");
+
         if (dateBegin == null) {
-            dateBegin = super.getAll().stream()
+            dateBegin = service.getAll(SecurityUtil.authUserId()).stream()
                     .map(mealWithExceed -> mealWithExceed.getDateTime().toLocalDate())
-                    .min(LocalDate::compareTo).orElse(null);
+                    .min(LocalDate::compareTo).orElse(LocalDateTime.MIN.toLocalDate());
         }
         if (timeBegin == null) {
-            timeBegin = super.getAll().stream()
+            timeBegin = service.getAll(SecurityUtil.authUserId()).stream()
                     .map(mealWithExceed -> mealWithExceed.getDateTime().toLocalTime())
-                    .min(LocalTime::compareTo).orElse(null);
+                    .min(LocalTime::compareTo).orElse(LocalDateTime.MIN.toLocalTime());
         }
         if (dateEnd == null) {
-            dateEnd = super.getAll().stream()
+            dateEnd = service.getAll(SecurityUtil.authUserId()).stream()
                     .map(mealWithExceed -> mealWithExceed.getDateTime().toLocalDate())
-                    .max(LocalDate::compareTo).orElse(null);
+                    .max(LocalDate::compareTo).orElse(LocalDateTime.MAX.toLocalDate());
         }
         if (timeEnd == null) {
-            timeEnd = super.getAll().stream()
+            timeEnd = service.getAll(SecurityUtil.authUserId()).stream()
                     .map(mealWithExceed -> mealWithExceed.getDateTime().toLocalTime())
-                    .max(LocalTime::compareTo).orElse(null);
+                    .max(LocalTime::compareTo).orElse(LocalDateTime.MAX.toLocalTime());
         }
-        return super.filterTime(dateBegin, dateEnd, timeBegin, timeEnd);
-    }
+        LocalTime beginTime = timeBegin;
+        LocalTime endTime = timeEnd;
 
-    @Override
-    public List<MealWithExceed> filterString(String str) {
-        if (str == null) {
-            str = "";
+        if (!getAll().isEmpty()) {
+            return service.filterDate(SecurityUtil.authUserId(), dateBegin, dateEnd).stream()
+                    .filter(meal -> DateTimeUtil.isBetween(meal.getDateTime().toLocalTime(), beginTime, endTime))
+                    .collect(Collectors.toList());
+        } else {
+            return new ArrayList<>();
         }
-        return super.filterString(str);
     }
 }

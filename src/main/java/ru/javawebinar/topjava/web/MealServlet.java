@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.util.DateRepository;
 import ru.javawebinar.topjava.web.meal.MealRestController;
 
 import javax.servlet.ServletConfig;
@@ -25,23 +24,26 @@ public class MealServlet extends HttpServlet {
 
     private ConfigurableApplicationContext appCtx = new ClassPathXmlApplicationContext("spring/spring-app.xml");
     private MealRestController mealRestController;
-    private DateRepository dateRepository = new DateRepository();
+    private LocalDate dateBegin;
+    private LocalDate dateEnd;
+    private LocalTime timeBegin;
+    private LocalTime timeEnd;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
         super.init(config);
         mealRestController = appCtx.getBean(MealRestController.class);
-        dateRepository = new DateRepository();
+
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         String id = request.getParameter("id");
-        String dateBegin = request.getParameter("datebegin");
-        String dateEnd = request.getParameter("dateend");
-        String timeBegin = request.getParameter("timebegin");
-        String timeEnd = request.getParameter("timeend");
+        String dateBeginR = request.getParameter("datebegin");
+        String dateEndR = request.getParameter("dateend");
+        String timeBeginR = request.getParameter("timebegin");
+        String timeEndR = request.getParameter("timeend");
 
         if (!id.equals("null")) {
             Meal meal = new Meal(id.isEmpty() ? null : Integer.valueOf(id),
@@ -54,25 +56,25 @@ public class MealServlet extends HttpServlet {
         }
 
         if (id.equals("null")) {
-            if (!dateBegin.isEmpty()) {
-                dateRepository.setDate("dateBegin", LocalDate.parse(dateBegin));
+            if (!dateBeginR.isEmpty()) {
+                dateBegin = LocalDate.parse(dateBeginR);
             } else {
-                dateRepository.removeDate("dateBegin");
+                dateBegin = null;
             }
-            if (!dateEnd.isEmpty()) {
-                dateRepository.setDate("dateEnd", LocalDate.parse(dateEnd));
+            if (!dateEndR.isEmpty()) {
+                dateEnd = LocalDate.parse(dateEndR);
             } else {
-                dateRepository.removeDate("dateEnd");
+                dateEnd = null;
             }
-            if (!timeBegin.isEmpty()) {
-                dateRepository.setTime("timeBegin", LocalTime.parse(timeBegin));
+            if (!timeBeginR.isEmpty()) {
+                timeBegin = LocalTime.parse(timeBeginR);
             } else {
-                dateRepository.removeTime("timeBegin");
+                timeBegin = null;
             }
-            if (!timeEnd.isEmpty()) {
-                dateRepository.setTime("timeEnd", LocalTime.parse(timeEnd));
+            if (!timeEndR.isEmpty()) {
+                timeEnd = LocalTime.parse(timeEndR);
             } else {
-                dateRepository.removeTime("timeEnd");
+                timeEnd = null;
             }
         }
         response.sendRedirect("meals");
@@ -99,8 +101,6 @@ public class MealServlet extends HttpServlet {
                 break;
             case "cancel":
                 log.info("All");
-                dateRepository = new DateRepository();
-                request.setAttribute("datefilter", dateRepository);
                 request.setAttribute("meals",
                         mealRestController.getAll());
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
@@ -108,13 +108,8 @@ public class MealServlet extends HttpServlet {
             case "all":
             default:
                 log.info("getAllFiltered");
-                request.setAttribute("datefilter", dateRepository);
                 request.setAttribute("meals",
-                        mealRestController.filterTime(
-                                dateRepository.getDate("dateBegin"),
-                                dateRepository.getDate("dateEnd"),
-                                dateRepository.getTime("timeBegin"),
-                                dateRepository.getTime("timeEnd")));
+                        mealRestController.filterTime(dateBegin, dateEnd, timeBegin, timeEnd));
                 request.getRequestDispatcher("/meals.jsp").forward(request, response);
                 break;
         }
@@ -124,6 +119,7 @@ public class MealServlet extends HttpServlet {
     public void destroy() {
         log.info("MealServlet destroy");
         appCtx.close();
+        super.destroy();
     }
 
     private int getId(HttpServletRequest request) {

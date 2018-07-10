@@ -7,10 +7,8 @@ import ru.javawebinar.topjava.repository.MealRepository;
 import ru.javawebinar.topjava.to.MealWithExceed;
 import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
-import ru.javawebinar.topjava.web.meal.DTO;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.List;
 
 import static ru.javawebinar.topjava.util.ValidationUtil.checkNotFoundWithId;
@@ -26,37 +24,32 @@ public class MealServiceImpl implements MealService {
     }
 
     @Override
-    public Meal create(Meal meal) {
-        return repository.save(meal);
+    public Meal create(Meal meal, int userId) {
+        return repository.save(meal, userId);
     }
 
     @Override
-    public void delete(int id) throws NotFoundException {
-        checkNotFoundWithId(repository.delete(id), id);
+    public void delete(int id, int userId) throws NotFoundException {
+        checkNotFoundWithId(repository.delete(id, userId), id);
     }
 
     @Override
-    public Meal get(int id) throws NotFoundException {
-        return checkNotFoundWithId(repository.get(id), id);
+    public Meal get(int id, int userId) throws NotFoundException {
+        return checkNotFoundWithId(repository.get(id, userId), id);
     }
 
     @Override
-    public void update(Meal meal) {
-        checkNotFoundWithId(repository.save(meal), meal.getId());
+    public void update(Meal meal, int userId) {
+        checkNotFoundWithId(repository.save(meal, userId), meal.getId());
     }
 
     @Override
-    public List<MealWithExceed> getAll() {
-        return DTO.getWithExceeded(repository.getAll(), MealsUtil.DEFAULT_CALORIES_PER_DAY);
+    public List<MealWithExceed> getAll(int userId) {
+        return MealsUtil.getWithExceeded(repository.getAll(userId), MealsUtil.DEFAULT_CALORIES_PER_DAY);
     }
 
     @Override
-    public List<MealWithExceed> filterTime(LocalDate dateBegin, LocalDate dateEnd, LocalTime timeBegin, LocalTime timeEnd) {
-        return DTO.getWithExceeded(repository.filterTime(dateBegin, dateEnd, timeBegin, timeEnd), MealsUtil.DEFAULT_CALORIES_PER_DAY);
-    }
-
-    @Override
-    public List<MealWithExceed> filterString(String str) {
-        return DTO.getWithExceeded(repository.filterString(str), MealsUtil.DEFAULT_CALORIES_PER_DAY);
+    public List<MealWithExceed> filterDate(int userId, LocalDate dateBegin, LocalDate dateEnd) {
+        return MealsUtil.getWithExceeded(repository.filterDate(userId, dateBegin, dateEnd), MealsUtil.DEFAULT_CALORIES_PER_DAY);
     }
 }
