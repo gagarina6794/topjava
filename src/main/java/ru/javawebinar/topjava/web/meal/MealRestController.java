@@ -8,6 +8,7 @@ import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.to.MealWithExceed;
 import ru.javawebinar.topjava.util.DateTimeUtil;
+import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.web.SecurityUtil;
 
 import java.time.LocalDate;
@@ -55,26 +56,30 @@ public class MealRestController {
     public List<MealWithExceed> filterTime(LocalDate dateBegin, LocalDate dateEnd, LocalTime timeBegin, LocalTime timeEnd) {
         log.info("filterTime");
 
+        List<MealWithExceed> mealWithExceeds =  service.getAll(SecurityUtil.authUserId());
+
         if (dateBegin == null) {
-            dateBegin = service.getAll(SecurityUtil.authUserId()).stream()
+            dateBegin = mealWithExceeds.stream()
                     .map(mealWithExceed -> mealWithExceed.getDateTime().toLocalDate())
                     .min(LocalDate::compareTo).orElse(LocalDateTime.MIN.toLocalDate());
         }
         if (timeBegin == null) {
-            timeBegin = service.getAll(SecurityUtil.authUserId()).stream()
+            timeBegin = mealWithExceeds.stream()
                     .map(mealWithExceed -> mealWithExceed.getDateTime().toLocalTime())
                     .min(LocalTime::compareTo).orElse(LocalDateTime.MIN.toLocalTime());
         }
         if (dateEnd == null) {
-            dateEnd = service.getAll(SecurityUtil.authUserId()).stream()
+            dateEnd = mealWithExceeds.stream()
                     .map(mealWithExceed -> mealWithExceed.getDateTime().toLocalDate())
                     .max(LocalDate::compareTo).orElse(LocalDateTime.MAX.toLocalDate());
         }
         if (timeEnd == null) {
-            timeEnd = service.getAll(SecurityUtil.authUserId()).stream()
+            timeEnd = mealWithExceeds.stream()
                     .map(mealWithExceed -> mealWithExceed.getDateTime().toLocalTime())
                     .max(LocalTime::compareTo).orElse(LocalDateTime.MAX.toLocalTime());
         }
+        LocalDate beginDate = dateBegin;
+        LocalDate endDate = dateEnd;
         LocalTime beginTime = timeBegin;
         LocalTime endTime = timeEnd;
 

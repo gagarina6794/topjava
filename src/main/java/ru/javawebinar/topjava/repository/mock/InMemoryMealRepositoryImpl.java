@@ -26,10 +26,8 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
     @Override
     public Meal save(Meal meal, int userId) {
         if (meal != null) {
-            Map<Integer, Meal> map;
-            if (repository.get(userId) != null) {
-                map = new ConcurrentHashMap<>(repository.get(userId));
-            } else {
+            Map<Integer, Meal> map = repository.get(userId);
+            if (map == null) {
                 map = new ConcurrentHashMap<>();
             }
             if (meal.isNew()) {
@@ -48,37 +46,40 @@ public class InMemoryMealRepositoryImpl implements MealRepository {
     @Override
     public boolean delete(int id, int userId) {
         Map<Integer, Meal> map = repository.get(userId);
-        return (map.remove(id) != null);
+        if (map != null) {
+            return (map.remove(id) != null);
+        }
+        return false;
     }
 
     @Override
     public Meal get(int id, int userId) {
-        return repository.get(userId).get(id);
+        Map<Integer, Meal> map = repository.get(userId);
+        return (map != null ? map.get(id) : null);
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        Map<Integer, Meal> map;
-        if (repository.get(userId) != null) {
-            map = new ConcurrentHashMap<>(repository.get(userId));
-        } else {
+        Map<Integer, Meal> map=repository.get(userId);
+        if(map==null){
             map = new ConcurrentHashMap<>();
         }
         if (!map.isEmpty()) {
-            return map.values().stream().sorted(Comparator.comparing(Meal::getDateTime).reversed()).collect(Collectors.toList());
+            return new ArrayList<>(map.values());
         } else {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
     }
 
     @Override
     public List<Meal> filterDate(int userId, LocalDate dateBegin, LocalDate dateEnd) {
-        if (!getAll(userId).isEmpty()) {
-            return getAll(userId).stream()
+        List<Meal> meals = getAll(userId);
+        if (!meals.isEmpty()) {
+            return meals.stream()
                     .filter(meal -> DateTimeUtil.isBetween(meal.getDate(), dateBegin, dateEnd))
                     .collect(Collectors.toList());
         }
-        return new ArrayList<>();
+        return Collections.emptyList();
     }
 }
 
