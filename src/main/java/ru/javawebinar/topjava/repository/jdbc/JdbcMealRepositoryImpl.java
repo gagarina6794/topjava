@@ -10,18 +10,12 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.MealRepository;
-import ru.javawebinar.topjava.util.DateTimeUtil;
 
 import javax.sql.DataSource;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Repository
 public class JdbcMealRepositoryImpl implements MealRepository {
@@ -43,14 +37,15 @@ public class JdbcMealRepositoryImpl implements MealRepository {
         this.jdbcTemplate = jdbcTemplate;
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
+
     @Override
     public Meal save(Meal meal, int userId) {
         MapSqlParameterSource map = new MapSqlParameterSource()
                 .addValue("userId", userId)
                 .addValue("dateTime", meal.getDateTime())
-                .addValue("description",meal.getDescription())
+                .addValue("description", meal.getDescription())
                 .addValue("calories", meal.getCalories())
-                .addValue("id",meal.getId());
+                .addValue("id", meal.getId());
 
         if (meal.isNew()) {
             Number newKey = insertMeal.executeAndReturnKey(map);
@@ -65,30 +60,27 @@ public class JdbcMealRepositoryImpl implements MealRepository {
 
     @Override
     public boolean delete(int id, int userId) {
-        return jdbcTemplate.update("DELETE FROM meals WHERE id=? and user_id=?", id,userId) != 0;
+        return jdbcTemplate.update("DELETE FROM meals WHERE id=? and user_id=?", id, userId) != 0;
     }
 
     @Override
     public Meal get(int id, int userId) {
-        List<Meal> meals = jdbcTemplate.query("SELECT * FROM meals WHERE id=? and user_id=?", ROW_MAPPER, id,userId);
+        List<Meal> meals = jdbcTemplate.query("SELECT * FROM meals WHERE id=? and user_id=?", ROW_MAPPER, id, userId);
         return DataAccessUtils.singleResult(meals);
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-       return getAllFiltered(userId,meal -> true);
+        List<Meal> meals = jdbcTemplate.query("SELECT * FROM meals WHERE user_id=? ORDER BY date_time DESC", ROW_MAPPER, userId);
+        return CollectionUtils.isEmpty(meals) ? Collections.emptyList() : meals;
     }
 
     @Override
     public List<Meal> getBetween(LocalDateTime startDateTime, LocalDateTime endDateTime, int userId) {
-        return getAllFiltered(userId, meal -> DateTimeUtil.isBetween(meal.getDateTime(), startDateTime, endDateTime));
-    }
-
-    private List<Meal> getAllFiltered(int userId, Predicate<Meal> filter) {
-        List<Meal> meals = jdbcTemplate.query("SELECT * FROM meals WHERE user_id=? ORDER BY date_time DESC", ROW_MAPPER,userId);
-        return CollectionUtils.isEmpty(meals) ? Collections.emptyList() :
-                meals.stream()
-                        .filter(filter)
-                        .collect(Collectors.toList());
+        List<Meal> meals = jdbcTemplate.query("SELECT * FROM meals WHERE user_id=? " +
+                "AND date_time>=?" +
+                "AND date_time<=?" +
+                "ORDER BY date_time DESC", ROW_MAPPER, userId, startDateTime, endDateTime);
+        return CollectionUtils.isEmpty(meals) ? Collections.emptyList() : meals;
     }
 }
