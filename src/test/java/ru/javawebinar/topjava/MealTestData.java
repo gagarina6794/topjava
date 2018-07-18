@@ -1,13 +1,12 @@
 package ru.javawebinar.topjava;
 
+import org.assertj.core.api.Assertions;
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static ru.javawebinar.topjava.model.AbstractBaseEntity.START_SEQ;
 
 public class MealTestData {
@@ -32,17 +31,15 @@ public class MealTestData {
     public static final Meal ADMIN_MEAL_3 = new Meal(ADMIN_MEAL_ID_3,
             LocalDateTime.of(2018, 7, 17, 17, 36), "Ужин Админа", 130);
 
-    public static void assertMatchMeal(Meal actual, Meal expected) {
-        if (!actual.getId().equals(expected.getId())) {
-            throw new NotFoundException("Not found meal with id " + expected.getId());
-        }
+    public static void assertMatch(Meal actual, Meal expected) {
+        assertThat(actual).isEqualToComparingFieldByField(expected);
     }
 
-    public static void assertMatchMeal(List<Meal> actual, Meal... expected) {
-        List<Integer> actuald = actual.stream().map(Meal::getId).collect(Collectors.toList());
-        List<Integer> expectedld = Arrays.stream(expected).map(Meal::getId).collect(Collectors.toList());
-        if (!actuald.equals(expectedld)) {
-            throw new RuntimeException("List's are not equals");
-        }
+    public static void assertMatch(Iterable<Meal> actual, Meal... expected) {
+        assertMatch(actual, Arrays.asList(expected));
+    }
+
+    public static void assertMatch(Iterable<Meal> actual, Iterable<Meal> expected) {
+        Assertions.assertThat(actual).usingFieldByFieldElementComparator().isEqualTo(expected);
     }
 }
