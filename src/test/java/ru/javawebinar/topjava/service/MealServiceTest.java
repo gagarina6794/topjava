@@ -52,19 +52,18 @@ public class MealServiceTest {
     @Rule
     public final TestRule watcher = new Stopwatch() {
         @Override
-        protected void finished(long nanos,Description description) {
-            report.append("  Finish: test ")
-                    .append(description.getMethodName())
-                    .append(" - ")
-                    .append(TimeUnit.NANOSECONDS.toMicros(nanos)).append(" ms").append("\n");
-            logger.info(String.format("Test %s, spent %d microseconds",
-                    description.getMethodName(),  TimeUnit.NANOSECONDS.toMicros(nanos)));
+        protected void finished(long nanos, Description description) {
+            String message = String.format("Test %s, spent %d microseconds",
+                    description.getMethodName(), TimeUnit.NANOSECONDS.toMicros(nanos));
+            report.append("Finish: ")
+                    .append(message).append("\n");
+            logger.info(message);
         }
     };
 
     @AfterClass
     public static void tearDownClass() {
-        logger.info("\n" + "@AfterClass report"+"\n" + report.toString());
+        logger.info("\n" + "@AfterClass report" + "\n" + report.toString());
     }
 
     @Test
