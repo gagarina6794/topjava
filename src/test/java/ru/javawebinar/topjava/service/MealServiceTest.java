@@ -4,6 +4,7 @@ import org.junit.AfterClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.Stopwatch;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
@@ -15,7 +16,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
-import ru.javawebinar.topjava.TestJUnitStopWatch;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
@@ -35,8 +35,9 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 @Sql(scripts = "classpath:db/populateDB.sql", config = @SqlConfig(encoding = "UTF-8"))
 public class MealServiceTest {
 
-    final static Logger logger =
+    private final static Logger logger =
             LoggerFactory.getLogger(MealServiceTest.class);
+    private static StringBuilder report = new StringBuilder();
 
     static {
         SLF4JBridgeHandler.install();
@@ -48,23 +49,11 @@ public class MealServiceTest {
     @Rule
     public final ExpectedException thrown = ExpectedException.none();
 
-    private static StringBuilder report = new StringBuilder();
-
     @Rule
-    public TestRule watcher = new TestJUnitStopWatch() {
-       @Override
-        public void failed(long nanos, Throwable e, Description description) {
-           report.append("  Fail: test ")
-                   .append(description.getMethodName())
-                   .append(" - ")
-                   .append(TimeUnit.NANOSECONDS.toMicros(nanos)).append(" ms").append("\n");
-           logger.warn(String.format("Test %s, spent %d microseconds",
-                   description.getMethodName(),  TimeUnit.NANOSECONDS.toMicros(nanos)));
-        }
-
+    public final TestRule watcher = new Stopwatch() {
         @Override
-        public void succeeded(long nanos,Description description) {
-            report.append("  Success: test ")
+        protected void finished(long nanos,Description description) {
+            report.append("  Finish: test ")
                     .append(description.getMethodName())
                     .append(" - ")
                     .append(TimeUnit.NANOSECONDS.toMicros(nanos)).append(" ms").append("\n");
@@ -75,8 +64,7 @@ public class MealServiceTest {
 
     @AfterClass
     public static void tearDownClass() {
-        System.out.println("@AfterClass report");
-        logger.info("\n" + report.toString());
+        logger.info("\n" + "@AfterClass report"+"\n" + report.toString());
     }
 
     @Test
@@ -114,8 +102,7 @@ public class MealServiceTest {
     public void update() throws Exception {
         Meal updated = getUpdated();
         service.update(updated, USER_ID);
-        Meal actual = service.get(MEAL1_ID, USER_ID);
-        assertMatch(actual, updated);
+        assertMatch(service.get(MEAL1_ID, USER_ID), updated);
     }
 
     @Test
