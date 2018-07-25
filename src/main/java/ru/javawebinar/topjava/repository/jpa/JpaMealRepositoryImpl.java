@@ -6,18 +6,20 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.MealRepository;
-import ru.javawebinar.topjava.util.CriteriaUtil;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TypedQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
 @Transactional(readOnly = true)
 public class JpaMealRepositoryImpl implements MealRepository {
-
-    private CriteriaUtil criteriaUtil = new CriteriaUtil();
 
     @PersistenceContext
     private EntityManager em;
@@ -46,30 +48,39 @@ public class JpaMealRepositoryImpl implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        List<Meal> mealList = criteriaUtil.getList(em,userId,id,LocalDateTime.now(),LocalDateTime.now(),false);
+        List<Meal> mealList = getList(em,userId,id,null,null,false);
         return DataAccessUtils.singleResult(mealList);
-
-//        Meal meal = em.find(Meal.class, id);
-//        return meal == null ? null : meal.getUser().getId().equals(userId) ? meal : null;
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        return criteriaUtil.getList(em,userId,0,LocalDateTime.now(),LocalDateTime.now(),false);
-
-//        return em.createNamedQuery(Meal.ALL_SORTED, Meal.class)
-//                .setParameter("user_id", userId)
-//                .getResultList();
+        return getList(em,userId,0,null,null,false);
     }
 
     @Override
     public List<Meal> getBetween(LocalDateTime startDate, LocalDateTime endDate, int userId) {
-        return criteriaUtil.getList(em,userId,0,startDate,endDate,true);
+        return getList(em,userId,0,startDate,endDate,true);
+    }
+    private List<Meal> getList(EntityManager em, int userId, int id, LocalDateTime startDate, LocalDateTime endDate, boolean filter) {
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<Meal> query = builder.createQuery(Meal.class);
+        Root<Meal> root = query.from(Meal.class);
+        CriteriaQuery<Meal> select = query.select(root);
+        CriteriaQuery<Meal> dateTime;
+        Predicate equal = builder.equal(root.get("user").get("id"), userId);
 
-//        return em.createNamedQuery(Meal.ALL_SORTED_BETWEEN, Meal.class)
-//                .setParameter("user_id", userId)
-//                .setParameter("start_date", startDate)
-//                .setParameter("end_date", endDate)
-//                .getResultList();
+        if (id != 0) {
+            select.where(builder.equal(root.get("id"), id), equal);
+        } else {
+            if (filter) {
+                dateTime = select.where(builder.between(root.get("dateTime"), startDate, endDate), equal);
+            } else {
+                dateTime = select.where(equal);
+            }
+            dateTime.orderBy(builder.desc(root.get("dateTime")));
+        }
+
+        TypedQuery<Meal> queryResult = em.createQuery(query);
+        return queryResult.getResultList();
     }
 }
