@@ -46,9 +46,7 @@ public class JpaMealRepositoryImpl implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        List<Meal> mealList = criteriaUtil.getList(em, (builder, query, root) -> query
-                .select(root)
-                .where(builder.equal(root.get("id"), id), builder.equal(root.get("user").get("id"), userId)));
+        List<Meal> mealList = criteriaUtil.getList(em,userId,id,LocalDateTime.now(),LocalDateTime.now(),false);
         return DataAccessUtils.singleResult(mealList);
 
 //        Meal meal = em.find(Meal.class, id);
@@ -57,10 +55,7 @@ public class JpaMealRepositoryImpl implements MealRepository {
 
     @Override
     public List<Meal> getAll(int userId) {
-        return criteriaUtil.getList(em, (builder, query, root) -> query
-                .select(root)
-                .where(builder.equal(root.get("user").get("id"), userId))
-                .orderBy(builder.desc(root.get("dateTime"))));
+        return criteriaUtil.getList(em,userId,0,LocalDateTime.now(),LocalDateTime.now(),false);
 
 //        return em.createNamedQuery(Meal.ALL_SORTED, Meal.class)
 //                .setParameter("user_id", userId)
@@ -69,10 +64,7 @@ public class JpaMealRepositoryImpl implements MealRepository {
 
     @Override
     public List<Meal> getBetween(LocalDateTime startDate, LocalDateTime endDate, int userId) {
-        return criteriaUtil.getList(em, (builder, query, root) -> query
-                .select(root)
-                .where(builder.equal(root.get("user").get("id"), userId), builder.between(root.get("dateTime"), startDate, endDate))
-                .orderBy(builder.desc(root.get("dateTime"))));
+        return criteriaUtil.getList(em,userId,0,startDate,endDate,true);
 
 //        return em.createNamedQuery(Meal.ALL_SORTED_BETWEEN, Meal.class)
 //                .setParameter("user_id", userId)
