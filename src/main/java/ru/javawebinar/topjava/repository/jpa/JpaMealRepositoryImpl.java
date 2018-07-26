@@ -48,40 +48,37 @@ public class JpaMealRepositoryImpl implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        List<Meal> mealList = getList(userId, id, null, null);
+        List<Meal> mealList = getList(false, userId, (builder, root) -> builder.equal(root.get("id"), id));
         return DataAccessUtils.singleResult(mealList);
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        return getList(userId, 0, null, null);
+        return getList(true, userId,(builder, root) -> builder.and());
     }
 
     @Override
     public List<Meal> getBetween(LocalDateTime startDate, LocalDateTime endDate, int userId) {
-        return getList(userId, 0, startDate, endDate);
+        return getList(true, userId, (builder, root) -> builder.between(root.get("dateTime"), startDate, endDate));
     }
 
-    private List<Meal> getList(int userId, int id, LocalDateTime startDate, LocalDateTime endDate) {
+    private List<Meal> getList(boolean order, int userId, CriteriaHelper helper) {
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaQuery<Meal> query = builder.createQuery(Meal.class);
         Root<Meal> root = query.from(Meal.class);
-        CriteriaQuery<Meal> select = query.select(root);
-        CriteriaQuery<Meal> dateTime;
-        Predicate equal = builder.equal(root.get("user").get("id"), userId);
 
-        if (id != 0) {
-            select.where(builder.equal(root.get("id"), id), equal);
-        } else {
-            if (startDate == null || endDate == null) {
-                dateTime = select.where(equal);
-            } else {
-                dateTime = select.where(builder.between(root.get("dateTime"), startDate, endDate), equal);
-            }
-            dateTime.orderBy(builder.desc(root.get("dateTime")));
+        query.where(builder.equal(root.get("user").get("id"), userId),helper.getList(builder, root));
+
+        if (order) {
+            query.orderBy(builder.desc(root.get("dateTime")));
         }
-        
+
         TypedQuery<Meal> queryResult = em.createQuery(query);
         return queryResult.getResultList();
+    }
+
+    @FunctionalInterface
+    public interface CriteriaHelper {
+        Predicate getList(CriteriaBuilder builder, Root<Meal> root);
     }
 }
