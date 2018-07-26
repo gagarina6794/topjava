@@ -64,10 +64,11 @@ public class JpaMealRepositoryImpl implements MealRepository {
 
     private List<Meal> getList(boolean order, int userId, CriteriaHelper helper) {
         CriteriaBuilder builder = em.getCriteriaBuilder();
+
         CriteriaQuery<Meal> query = builder.createQuery(Meal.class);
         Root<Meal> root = query.from(Meal.class);
 
-        query.where(builder.equal(root.get("user").get("id"), userId),helper.getList(builder, root));
+        query.where(builder.equal(root.get("user").get("id"), userId),helper.getPredicate(builder, root));
 
         if (order) {
             query.orderBy(builder.desc(root.get("dateTime")));
@@ -79,6 +80,6 @@ public class JpaMealRepositoryImpl implements MealRepository {
 
     @FunctionalInterface
     public interface CriteriaHelper {
-        Predicate getList(CriteriaBuilder builder, Root<Meal> root);
+        Predicate getPredicate(CriteriaBuilder builder, Root<Meal> root);
     }
 }
