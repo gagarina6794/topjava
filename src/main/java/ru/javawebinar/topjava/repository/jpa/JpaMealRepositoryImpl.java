@@ -61,7 +61,7 @@ public class JpaMealRepositoryImpl implements MealRepository {
 
     @Override
     public List<Meal> getAll(int userId) {
-        return getList(true, userId,(builder, root) -> builder.and());
+        return getList(true, userId, (builder, root) -> builder.and());
     }
 
     @Override
@@ -70,12 +70,10 @@ public class JpaMealRepositoryImpl implements MealRepository {
     }
 
     private List<Meal> getList(boolean order, int userId, CriteriaHelper helper) {
-      //  CriteriaBuilder builder = em.getCriteriaBuilder();
-
         CriteriaQuery<Meal> query = builder.createQuery(Meal.class);
         Root<Meal> root = query.from(Meal.class);
 
-        query.where(builder.equal(root.get("user").get("id"), userId),helper.getPredicate(builder, root));
+        query.where(builder.equal(root.get("user").get("id"), userId), helper.getPredicate(builder, root));
 
         if (order) {
             query.orderBy(builder.desc(root.get("dateTime")));
