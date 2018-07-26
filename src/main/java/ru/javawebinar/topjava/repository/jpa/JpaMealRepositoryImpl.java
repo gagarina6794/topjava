@@ -7,6 +7,7 @@ import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.MealRepository;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
@@ -23,6 +24,12 @@ public class JpaMealRepositoryImpl implements MealRepository {
 
     @PersistenceContext
     private EntityManager em;
+    private CriteriaBuilder builder;
+
+    @PostConstruct
+    private void init() {
+        builder = em.getCriteriaBuilder();
+    }
 
     @Override
     @Transactional
@@ -63,7 +70,7 @@ public class JpaMealRepositoryImpl implements MealRepository {
     }
 
     private List<Meal> getList(boolean order, int userId, CriteriaHelper helper) {
-        CriteriaBuilder builder = em.getCriteriaBuilder();
+      //  CriteriaBuilder builder = em.getCriteriaBuilder();
 
         CriteriaQuery<Meal> query = builder.createQuery(Meal.class);
         Root<Meal> root = query.from(Meal.class);
