@@ -55,25 +55,25 @@ public class JpaMealRepositoryImpl implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-        List<Meal> mealList = getList(false, userId, (builder, root) -> builder.equal(root.get("id"), id));
+        List<Meal> mealList = getList(false, userId, root -> builder.equal(root.get("id"), id));
         return DataAccessUtils.singleResult(mealList);
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        return getList(true, userId, (builder, root) -> builder.and());
+        return getList(true, userId, root -> builder.and());
     }
 
     @Override
     public List<Meal> getBetween(LocalDateTime startDate, LocalDateTime endDate, int userId) {
-        return getList(true, userId, (builder, root) -> builder.between(root.get("dateTime"), startDate, endDate));
+        return getList(true, userId, root -> builder.between(root.get("dateTime"), startDate, endDate));
     }
 
     private List<Meal> getList(boolean order, int userId, CriteriaHelper helper) {
         CriteriaQuery<Meal> query = builder.createQuery(Meal.class);
         Root<Meal> root = query.from(Meal.class);
 
-        query.where(builder.equal(root.get("user").get("id"), userId), helper.getPredicate(builder, root));
+        query.where(builder.equal(root.get("user").get("id"), userId), helper.getPredicate(root));
 
         if (order) {
             query.orderBy(builder.desc(root.get("dateTime")));
@@ -85,6 +85,6 @@ public class JpaMealRepositoryImpl implements MealRepository {
 
     @FunctionalInterface
     public interface CriteriaHelper {
-        Predicate getPredicate(CriteriaBuilder builder, Root<Meal> root);
+        Predicate getPredicate(Root<Meal> root);
     }
 }
