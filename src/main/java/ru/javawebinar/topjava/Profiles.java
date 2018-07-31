@@ -2,11 +2,10 @@ package ru.javawebinar.topjava;
 
 public class Profiles {
     public static final String
+            HSQLDB_JPA = "hsqldb-jdbc",
             JDBC = "jdbc",
             JPA = "jpa",
-            DATAJPA = "datajpa";
-
-    public static final String REPOSITORY_IMPLEMENTATION = DATAJPA;
+            DATAJPA = "data-jpa";
 
     public static final String
             POSTGRES_DB = "postgres",
@@ -20,7 +19,7 @@ public class Profiles {
         } catch (ClassNotFoundException ex) {
             try {
                 Class.forName("org.hsqldb.jdbcDriver");
-                return Profiles.HSQL_DB;
+                return HSQL_DB;
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException("Could not find DB driver");
             }
