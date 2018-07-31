@@ -36,19 +36,19 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
         assertMatch(service.getAll(), ADMIN, newUser, USER);
     }
 
-    @Override
+    @Test
     public void get() throws Exception {
         User user = service.get(USER_ID);
         assertMatch(user, USER);
     }
 
-    @Override
+    @Test
     public void getNotFound() throws Exception {
         thrown.expect(NotFoundException.class);
         service.get(1);
     }
 
-    @Override
+    @Test
     public void update() throws Exception {
         User updated = new User(USER);
         updated.setName("UpdatedName");
@@ -57,20 +57,20 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
         assertMatch(service.get(USER_ID), updated);
     }
 
-    @Override
+    @Test
     public void delete() throws Exception {
         service.delete(USER_ID);
         assertMatch(service.getAll(), ADMIN);
     }
 
-    @Override
+    @Test
     public void deleteNotFound() throws Exception {
         thrown.expect(NotFoundException.class);
         service.delete(1);
     }
 
 
-    @Override
+    @Test
     public void getAll() throws Exception {
         List<User> all = service.getAll();
         assertMatch(all, ADMIN, USER);

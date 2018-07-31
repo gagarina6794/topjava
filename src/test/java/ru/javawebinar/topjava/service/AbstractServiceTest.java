@@ -2,7 +2,6 @@ package ru.javawebinar.topjava.service;
 
 import org.junit.AfterClass;
 import org.junit.Rule;
-import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.Stopwatch;
 import org.junit.runner.Description;
@@ -60,25 +59,4 @@ public abstract class AbstractServiceTest {
                 "\n---------------------------------");
         results = new StringBuilder();
     }
-
-    @Test
-    public abstract void create() throws Exception;
-
-    @Test
-    public abstract void get() throws Exception;
-
-    @Test
-    public abstract void getNotFound() throws Exception;
-
-    @Test
-    public abstract void update() throws Exception;
-
-    @Test
-    public abstract void delete() throws Exception;
-
-    @Test
-    public abstract void deleteNotFound() throws Exception;
-
-    @Test
-    public abstract void getAll() throws Exception;
 }

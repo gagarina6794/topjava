@@ -67,7 +67,9 @@
               p:entityManagerFactory-ref="entityManagerFactory"/>
     </beans>
 
-    <beans profile="hsqldb-jdbc, jdbc">
+    <beans profile="jdbc">
+        <context:component-scan base-package="ru.javawebinar.**.repository.jdbc"/>
+
         <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
             <constructor-arg ref="dataSource"/>
         </bean>
@@ -75,14 +77,6 @@
         <bean id="namedJdbcTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
             <constructor-arg ref="dataSource"/>
         </bean>
-    </beans>
-
-    <beans profile="jdbc">
-        <context:component-scan base-package="ru.javawebinar.**.repository.jdbc"/>
-    </beans>
-
-    <beans profile="hsqldb-jdbc">
-        <context:component-scan base-package="ru.javawebinar.**.repository.hsqldb"/>
     </beans>
 
     <beans profile="jpa">
