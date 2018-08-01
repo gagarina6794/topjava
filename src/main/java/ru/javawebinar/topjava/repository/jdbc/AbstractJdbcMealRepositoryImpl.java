@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.repository.MealRepository;
 
+import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -24,7 +25,16 @@ public abstract class AbstractJdbcMealRepositoryImpl<T> implements MealRepositor
     @Autowired
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
+    private SimpleJdbcInsert insertMeal;
+
     protected abstract T formatDate(LocalDateTime localDateTime);
+
+    @PostConstruct
+    private void init() {
+        insertMeal = new SimpleJdbcInsert(jdbcTemplate)
+                .withTableName("meals")
+                .usingGeneratedKeyColumns("id");
+    }
 
     @Override
     public Meal save(Meal meal, int userId) {
@@ -36,9 +46,6 @@ public abstract class AbstractJdbcMealRepositoryImpl<T> implements MealRepositor
                 .addValue("user_id", userId);
 
         if (meal.isNew()) {
-            SimpleJdbcInsert insertMeal = new SimpleJdbcInsert(jdbcTemplate)
-                    .withTableName("meals")
-                    .usingGeneratedKeyColumns("id");
             Number newId = insertMeal.executeAndReturnKey(map);
             meal.setId(newId.intValue());
         } else {

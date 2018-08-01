@@ -131,7 +131,7 @@ public class User extends AbstractNamedEntity {
     }
 
     public void setMeal(List<Meal> meals) {
-        this.meals = meals;
+        this.meals = meals.isEmpty() ? Collections.emptyList() : meals;
     }
 
     @Override

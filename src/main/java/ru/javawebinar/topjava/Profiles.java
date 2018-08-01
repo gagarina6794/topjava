@@ -2,10 +2,11 @@ package ru.javawebinar.topjava;
 
 public class Profiles {
     public static final String
-            HSQLDB_JPA = "hsqldb-jdbc",
             JDBC = "jdbc",
             JPA = "jpa",
             DATAJPA = "data-jpa";
+
+    public static final String REPOSITORY_IMPLEMENTATION = DATAJPA;
 
     public static final String
             POSTGRES_DB = "postgres",
