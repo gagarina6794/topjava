@@ -27,4 +27,8 @@ public class DataJpaMealServiceTest extends AbstractMealServiceTest {
         thrown.expect(NotFoundException.class);
         service.getWithUser(MEAL1_ID, ADMIN_ID);
     }
+
+    @Override
+    public void getWithUserUnsupported() {
+    }
 }

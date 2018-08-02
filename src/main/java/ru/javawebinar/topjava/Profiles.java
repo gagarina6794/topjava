@@ -6,13 +6,14 @@ public class Profiles {
             JPA = "jpa",
             DATAJPA = "data-jpa";
 
-    public static final String REPOSITORY_IMPLEMENTATION = DATAJPA;
+    public static final String REPOSITORY_IMPLEMENTATION = JPA;
 
     public static final String
             POSTGRES_DB = "postgres",
             HSQL_DB = "hsqldb";
 
-    //  Get DB profile depending of DB driver in classpath
+    public static final String ACTIVE_DB = POSTGRES_DB;
+
     public static String getActiveDbProfile() {
         try {
             Class.forName("org.postgresql.Driver");
@@ -20,7 +21,7 @@ public class Profiles {
         } catch (ClassNotFoundException ex) {
             try {
                 Class.forName("org.hsqldb.jdbcDriver");
-                return HSQL_DB;
+                return Profiles.HSQL_DB;
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException("Could not find DB driver");
             }

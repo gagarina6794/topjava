@@ -28,4 +28,8 @@ public class DataJpaUserServiceTest extends AbstractUserServiceTest {
         thrown.expect(NotFoundException.class);
         service.getWithMeal(1);
     }
+
+    @Override
+    public void getWithMealUnsupported() {
+    }
 }

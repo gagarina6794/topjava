@@ -73,4 +73,10 @@ public abstract class AbstractMealServiceTest extends AbstractServiceTest {
                 LocalDate.of(2015, Month.MAY, 30),
                 LocalDate.of(2015, Month.MAY, 30), ADMIN_ID), ADMIN_MEAL4, ADMIN_MEAL3);
     }
+
+    @Test
+    public void getWithUserUnsupported() {
+        thrown.expect(UnsupportedOperationException.class);
+        service.getWithUser(MEAL1_ID, USER_ID);
+    }
 }

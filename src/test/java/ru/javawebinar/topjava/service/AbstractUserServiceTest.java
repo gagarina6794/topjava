@@ -87,4 +87,10 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
         thrown.expect(DataAccessException.class);
         service.create(new User(null, "Duplicate", "user@yandex.ru", "newPass", Role.ROLE_USER));
     }
+
+    @Test
+    public void getWithMealUnsupported() {
+        thrown.expect(UnsupportedOperationException.class);
+        service.getWithMeal(USER_ID);
+    }
 }
