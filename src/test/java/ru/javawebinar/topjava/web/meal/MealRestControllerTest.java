@@ -1,12 +1,17 @@
 package ru.javawebinar.topjava.web.meal;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import ru.javawebinar.topjava.TestUtil;
 import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -18,6 +23,9 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 class MealRestControllerTest extends AbstractControllerTest {
 
     private static final String REST_URL = MealRestController.REST_URL + '/';
+
+    @Autowired
+    protected MealService mealService;
 
     @Test
     void testCreate() throws Exception {
@@ -63,19 +71,31 @@ class MealRestControllerTest extends AbstractControllerTest {
 
     @Test
     void testGetAll() throws Exception {
-        TestUtil.print(mockMvc.perform(get(REST_URL))
+        mockMvc.perform(get(REST_URL))
             .andExpect(status().isOk())
             .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(contentJson(MEAL6, MEAL5, MEAL4, MEAL3, MEAL2, MEAL1)));
+            .andExpect(contentJson(MEALS_EXCEEDED));
     }
 
     @Test
     void testGetBetween() throws Exception {
         mockMvc.perform(get(REST_URL + "between")
-            .param("startLocalDateTime", "2015-05-30T01:00:00")
-            .param("endLocalDateTime", "2015-05-30T23:00:00"))
+            .param("startDate", LocalDate.of(2015, 5, 30).toString())
+            .param("startTime", LocalTime.of(1, 30).toString())
+            .param("endDate", LocalDate.of(2015, 5, 30).toString())
+            .param("endTime", LocalTime.of(23, 30).toString()))
             .andExpect(status().isOk())
             .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-            .andExpect(contentJson(MEAL3, MEAL2, MEAL1));
+            .andExpect(contentJson(MEAL_WITH_EXCEED_3, MEAL_WITH_EXCEED_2, MEAL_WITH_EXCEED_1));
+    }
+
+    @Test
+    void testGetBetweenMissedParams() throws Exception {
+        mockMvc.perform(get(REST_URL + "between")
+            .param("startDate", LocalDate.of(2015, 5, 30).toString())
+            .param("endDate", LocalDate.of(2015, 5, 30).toString()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+            .andExpect(contentJson(MEAL_WITH_EXCEED_3, MEAL_WITH_EXCEED_2, MEAL_WITH_EXCEED_1));
     }
 }

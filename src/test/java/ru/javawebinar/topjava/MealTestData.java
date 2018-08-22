@@ -2,6 +2,9 @@ package ru.javawebinar.topjava;
 
 import org.springframework.test.web.servlet.ResultMatcher;
 import ru.javawebinar.topjava.model.Meal;
+import ru.javawebinar.topjava.to.MealWithExceed;
+import ru.javawebinar.topjava.util.MealsUtil;
+import ru.javawebinar.topjava.web.SecurityUtil;
 
 import java.time.Month;
 import java.util.Arrays;
@@ -28,6 +31,11 @@ public class MealTestData {
 
     public static final List<Meal> MEALS = Arrays.asList(MEAL6, MEAL5, MEAL4, MEAL3, MEAL2, MEAL1);
 
+    public static final List<MealWithExceed> MEALS_EXCEEDED = MealsUtil.getWithExceeded(MEALS,SecurityUtil.authUserCaloriesPerDay());
+    public static final MealWithExceed MEAL_WITH_EXCEED_1 = MEALS_EXCEEDED.get(5);
+    public static final MealWithExceed MEAL_WITH_EXCEED_2 = MEALS_EXCEEDED.get(4);
+    public static final MealWithExceed MEAL_WITH_EXCEED_3 = MEALS_EXCEEDED.get(3);
+
     public static Meal getCreated() {
         return new Meal(null, of(2015, Month.JUNE, 1, 18, 0), "Созданный ужин", 300);
     }
@@ -48,7 +56,11 @@ public class MealTestData {
         assertThat(actual).usingElementComparatorIgnoringFields("user").isEqualTo(expected);
     }
 
-    public static ResultMatcher contentJson(Meal... expected) {
+    public static ResultMatcher contentJson(List<MealWithExceed> expected) {
+        return content().json(writeIgnoreProps(expected, "user"));
+    }
+
+    public static ResultMatcher contentJson(MealWithExceed... expected) {
         return content().json(writeIgnoreProps(Arrays.asList(expected), "user"));
     }
 
