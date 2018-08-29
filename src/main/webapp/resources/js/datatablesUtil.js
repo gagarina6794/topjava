@@ -1,8 +1,4 @@
 function makeEditable() {
-    $(".delete").click(function () {
-        deleteRow($(this).attr("id"));
-    });
-
     $(document).ajaxError(function (event, jqXHR, options, jsExc) {
         failNoty(jqXHR);
     });
@@ -37,6 +33,10 @@ function save() {
         updateTable();
         successNoty("Saved");
     });
+}
+
+function drawTable(data) {
+    datatableApi.clear().rows.add(data).draw();
 }
 
 var failedNote;

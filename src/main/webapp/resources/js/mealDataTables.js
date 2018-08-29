@@ -43,7 +43,5 @@ function updateTable() {
     $.post(
         ajaxUrl + "filter",
         $("#filterForm").serialize(),
-        function (data) {
-        datatableApi.clear().rows.add(data).draw();
-    });
+        drawTable);
 }

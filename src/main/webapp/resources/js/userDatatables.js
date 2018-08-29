@@ -42,23 +42,18 @@ $(function () {
 });
 
 function updateTable() {
-    $.get(ajaxUrl, function (data) {
-        datatableApi.clear().rows.add(data).draw();
-    });
+    $.get(ajaxUrl, drawTable);
 }
 
 function changeEnabled(checkbox) {
     var enabled = checkbox[0].checked;
     var userId = checkbox[0].closest('tr').id;
-    var log = "User with id = " + userId + (enabled ? "is enabled!" : "is disabled!");
-    console.log(log);
-    var form = $("#checkbox");
     $.ajax({
         type: "POST",
         url: ajaxUrl + userId,
         data: "state=" + enabled
     }).done(function () {
-            successNoty(log);
+            successNoty("User with id = " + userId + (enabled ? "is enabled!" : "is disabled!"));
             checkbox.closest("tr").attr("data-userEnabled", enabled);
         }
     ).fail(function () {
