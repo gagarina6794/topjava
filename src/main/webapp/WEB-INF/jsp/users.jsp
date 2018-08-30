@@ -43,7 +43,7 @@
                     </td>
 
                     <td><fmt:formatDate value="${user.registered}" pattern="dd-MMMM-yyyy"/></td>
-                    <td><a><span class="fa fa-pencil"></span></a></td>
+                    <td><a onclick=updateRow(${user.id})><span class="fa fa-pencil"></span></a></td>
                     <td><a onclick="deleteRow(this.closest('tr').id)"><span class="fa fa-remove"></span></a></td>
                 </tr>
             </c:forEach>
