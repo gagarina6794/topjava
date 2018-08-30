@@ -5,10 +5,23 @@
 <html>
 <jsp:include page="fragments/headTag.jsp"/>
 <body>
+<script type="text/javascript" src="resources/js/datatablesUtil.js" defer></script>
+<script type="text/javascript" src="resources/js/mealDatatables.js" defer></script>
 <jsp:include page="fragments/bodyHeader.jsp"/>
 
-<section>
-    <h3><spring:message code="meal.title"/></h3>
+<div class="jumbotron pt-4">
+    <div class="container">
+        <h3 class="text-center"><spring:message code="meal.title"/></h3>
+        <%--https://getbootstrap.com/docs/4.0/components/card/--%>
+        <div class="card">
+            <div class="card-body py-0 border">
+                <form id="filter" class="my-0">
+                    <div class="row">
+                        <div class="offset-2 col-6">
+                            <div class="form-group">
+                                <label class="col-form-label" for="startDate"><spring:message
+                                        code="meal.startDate"/></label>
+                                <input class="form-control col-6" type="date" name="startDate" id="startDate">
 
     <form method="post" action="meals/filter">
         <dl>

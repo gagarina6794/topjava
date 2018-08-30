@@ -1,30 +1,32 @@
-const ajaxUrl = "ajax/admin/users/";
+const ajaxUrl = "ajax/profile/meals/";
 let datatableApi;
 
 function updateTable() {
+    $.ajax({
+        type: "GET",
+        url: ajaxUrl + "filter",
+        data: $("#filter").serialize()
+    }).done(updateTableByData);
+}
+
+function clearFilter() {
+    $("#filter")[0].reset();
     $.get(ajaxUrl, updateTableByData);
 }
 
-// $(document).ready(function () {
 $(function () {
     datatableApi = $("#datatable").DataTable({
         "paging": false,
         "info": true,
         "columns": [
             {
-                "data": "name"
+                "data": "dateTime"
             },
             {
-                "data": "email"
+                "data": "description"
             },
             {
-                "data": "roles"
-            },
-            {
-                "data": "enabled"
-            },
-            {
-                "data": "registered"
+                "data": "calories"
             },
             {
                 "defaultContent": "Edit",
@@ -38,7 +40,7 @@ $(function () {
         "order": [
             [
                 0,
-                "asc"
+                "desc"
             ]
         ]
     });
