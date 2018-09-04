@@ -8,6 +8,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import javax.validation.groups.Default;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -29,21 +30,17 @@ public class Meal extends AbstractBaseEntity {
     public static final String GET_BETWEEN = "Meal.getBetween";
 
     @Column(name = "date_time", nullable = false)
-    @NotNull(groups = {Validation.class})
-    @NotNull
+    @NotNull(groups = {Validation.class, Default.class})
     private LocalDateTime dateTime;
 
     @Column(name = "description", nullable = false)
-    @NotBlank(groups = {Validation.class})
-    @NotBlank
-    @Size(min = 2, max = 120, groups = {Validation.class})
-    @Size(min = 2, max = 120)
+    @NotBlank(groups = {Validation.class, Default.class})
+    @Size(min = 2, max = 120, groups = {Validation.class, Default.class})
     private String description;
 
     @Column(name = "calories", nullable = false)
     @NotNull(groups = {Validation.class})
-    @Range(min = 10, max = 5000, groups = {Validation.class})
-    @Range(min = 10, max = 5000)
+    @Range(min = 10, max = 5000, groups = {Validation.class, Default.class})
     private Integer calories;
 
     @ManyToOne(fetch = FetchType.LAZY)
