@@ -39,7 +39,9 @@ public class AdminAjaxController extends AbstractUserController {
     @PostMapping
     public ResponseEntity<String> createOrUpdate(@Valid UserTo userTo, BindingResult result) {
         ResponseEntity<String> joiner = getStringResponseEntity(result);
-        if (joiner != null) return joiner;
+        if (joiner != null) {
+            return joiner;
+        }
         if (userTo.isNew()) {
             super.create(UserUtil.createNewFromTo(userTo));
         } else {

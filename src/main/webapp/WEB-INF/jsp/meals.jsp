@@ -1,3 +1,4 @@
+<%@ taglib prefix="tags" tagdir="/WEB-INF/tags" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
@@ -7,7 +8,11 @@
 <body>
 <script type="text/javascript" src="resources/js/datatablesUtil.js" defer></script>
 <script type="text/javascript" src="resources/js/mealDatatables.js" defer></script>
+
+<script type="text/javascript" src="resources/datetimepicker/jquery.js"></script>
+<script type="text/javascript" src="resources/datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 <jsp:include page="fragments/bodyHeader.jsp"/>
+
 
 <div class="jumbotron pt-4">
     <div class="container">
@@ -21,22 +26,22 @@
                             <div class="form-group">
                                 <label class="col-form-label" for="startDate"><spring:message
                                         code="meal.startDate"/></label>
-                                <input class="form-control col-6" type="date" name="startDate" id="startDate">
+                                <input class="form-control col-6" type="text" name="startDate" id="startDate">
 
                                 <label class="col-form-label" for="endDate"><spring:message
                                         code="meal.endDate"/></label>
-                                <input class="form-control col-6" type="date" name="endDate" id="endDate">
+                                <input class="form-control col-6" type="text" name="endDate" id="endDate">
                             </div>
                         </div>
                         <div class="col-4">
                             <div class="form-group">
                                 <label class="col-form-label" for="startTime"><spring:message
                                         code="meal.startTime"/></label>
-                                <input class="form-control col-6" type="time" name="startTime" id="startTime">
+                                <input class="form-control col-6" type="text" name="startTime" id="startTime">
 
                                 <label class="col-form-label" for="endTime"><spring:message
                                         code="meal.endTime"/></label>
-                                <input class="form-control col-6" type="time" name="endTime" id="endTime">
+                                <input class="form-control col-6" type="text" name="endTime" id="endTime">
                             </div>
                         </div>
                     </div>
@@ -68,21 +73,6 @@
                 <th></th>
             </tr>
             </thead>
-            <c:forEach items="${meals}" var="meal">
-                <jsp:useBean id="meal" type="ru.javawebinar.topjava.to.MealWithExceed"/>
-                <tr data-mealExceed="${meal.exceed}">
-                    <td>
-                            <%--${meal.dateTime.toLocalDate()} ${meal.dateTime.toLocalTime()}--%>
-                            <%--<%=TimeUtil.toString(meal.getDateTime())%>--%>
-                            <%--${fn:replace(meal.dateTime, 'T', ' ')}--%>
-                            ${fn:formatDateTime(meal.dateTime)}
-                    </td>
-                    <td>${meal.description}</td>
-                    <td>${meal.calories}</td>
-                    <td><a><span class="fa fa-pencil"></span></a></td>
-                    <td><a onclick="deleteRow(${meal.id})"><span class="fa fa-remove"></span></a></td>
-                </tr>
-            </c:forEach>
         </table>
     </div>
 </div>
@@ -132,4 +122,22 @@
 </div>
 <jsp:include page="fragments/footer.jsp"/>
 </body>
+<script type="text/javascript">
+    let i18n = [];
+    i18n["addTitle"] = '<spring:message code="meal.add"/>';
+    i18n["editTitle"] = '<spring:message code="meal.edit"/>';
+    <%@ include file="Localisation.jspf"%>
+
+    jQuery.datetimepicker.setLocale('ru');
+
+    jQuery('#startDate , #endDate').datetimepicker({
+        timepicker: false,
+        format: 'Y-m-d',
+    });
+
+    jQuery('#startTime, #endTime').datetimepicker({
+        datepicker: false,
+        format: 'H:i'
+    });
+</script>
 </html>

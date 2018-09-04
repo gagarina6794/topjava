@@ -5,18 +5,18 @@ function updateTable() {
     $.get(ajaxUrl, updateTableByData);
 }
 
-function enable(chkbox, id) {
-    var enabled = chkbox.is(":checked");
+function enable(checkbox, id) {
+    var enabled = checkbox.is(":checked");
 //  https://stackoverflow.com/a/22213543/548473
     $.ajax({
         url: ajaxUrl + id,
         type: "POST",
         data: "enabled=" + enabled
     }).done(function () {
-        chkbox.closest("tr").attr("data-userEnabled", enabled);
+        checkbox.closest("tr").attr("data-userEnabled", enabled);
         successNoty(enabled ? "common.enabled" : "common.disabled");
     }).fail(function () {
-        $(chkbox).prop("checked", !enabled);
+        $(checkbox).prop("checked", !enabled);
     });
 }
 
@@ -35,7 +35,7 @@ $(function () {
             },
             {
                 "data": "email",
-                "render": function (data, type, row) {
+                "render": function (data, type) {
                     if (type === "display") {
                         return "<a href='mailto:" + data + "'>" + data + "</a>";
                     }
@@ -56,7 +56,7 @@ $(function () {
             },
             {
                 "data": "registered",
-                "render": function (date, type, row) {
+                "render": function (date, type) {
                     if (type === "display") {
                         return date.substring(0, 10);
                     }
@@ -80,7 +80,7 @@ $(function () {
                 "asc"
             ]
         ],
-        "createdRow": function (row, data, dataIndex) {
+        "createdRow": function (row, data) {
             if (!data.enabled) {
                 $(row).attr("data-userEnabled", false);
             }

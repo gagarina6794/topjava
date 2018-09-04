@@ -14,10 +14,10 @@ import java.time.LocalTime;
 
 @SuppressWarnings("JpaQlInspection")
 @NamedQueries({
-        @NamedQuery(name = Meal.ALL_SORTED, query = "SELECT m FROM Meal m WHERE m.user.id=:userId ORDER BY m.dateTime DESC"),
-        @NamedQuery(name = Meal.DELETE, query = "DELETE FROM Meal m WHERE m.id=:id AND m.user.id=:userId"),
-        @NamedQuery(name = Meal.GET_BETWEEN, query = "SELECT m FROM Meal m " +
-                "WHERE m.user.id=:userId AND m.dateTime BETWEEN :startDate AND :endDate ORDER BY m.dateTime DESC"),
+    @NamedQuery(name = Meal.ALL_SORTED, query = "SELECT m FROM Meal m WHERE m.user.id=:userId ORDER BY m.dateTime DESC"),
+    @NamedQuery(name = Meal.DELETE, query = "DELETE FROM Meal m WHERE m.id=:id AND m.user.id=:userId"),
+    @NamedQuery(name = Meal.GET_BETWEEN, query = "SELECT m FROM Meal m " +
+        "WHERE m.user.id=:userId AND m.dateTime BETWEEN :startDate AND :endDate ORDER BY m.dateTime DESC"),
 //        @NamedQuery(name = Meal.UPDATE, query = "UPDATE Meal m SET m.dateTime = :datetime, m.calories= :calories," +
 //                "m.description=:desc where m.id=:id and m.user.id=:userId")
 })
@@ -29,17 +29,22 @@ public class Meal extends AbstractBaseEntity {
     public static final String GET_BETWEEN = "Meal.getBetween";
 
     @Column(name = "date_time", nullable = false)
+    @NotNull(groups = {Validation.class})
     @NotNull
     private LocalDateTime dateTime;
 
     @Column(name = "description", nullable = false)
+    @NotBlank(groups = {Validation.class})
     @NotBlank
+    @Size(min = 2, max = 120, groups = {Validation.class})
     @Size(min = 2, max = 120)
     private String description;
 
     @Column(name = "calories", nullable = false)
+    @NotNull(groups = {Validation.class})
+    @Range(min = 10, max = 5000, groups = {Validation.class})
     @Range(min = 10, max = 5000)
-    private int calories;
+    private Integer calories;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -50,11 +55,11 @@ public class Meal extends AbstractBaseEntity {
     public Meal() {
     }
 
-    public Meal(LocalDateTime dateTime, String description, int calories) {
+    public Meal(LocalDateTime dateTime, String description, Integer calories) {
         this(null, dateTime, description, calories);
     }
 
-    public Meal(Integer id, LocalDateTime dateTime, String description, int calories) {
+    public Meal(Integer id, LocalDateTime dateTime, String description, Integer calories) {
         super(id);
         this.dateTime = dateTime;
         this.description = description;
@@ -69,7 +74,7 @@ public class Meal extends AbstractBaseEntity {
         return description;
     }
 
-    public int getCalories() {
+    public Integer getCalories() {
         return calories;
     }
 
@@ -89,7 +94,7 @@ public class Meal extends AbstractBaseEntity {
         this.description = description;
     }
 
-    public void setCalories(int calories) {
+    public void setCalories(Integer calories) {
         this.calories = calories;
     }
 
@@ -104,10 +109,13 @@ public class Meal extends AbstractBaseEntity {
     @Override
     public String toString() {
         return "Meal{" +
-                "id=" + id +
-                ", dateTime=" + dateTime +
-                ", description='" + description + '\'' +
-                ", calories=" + calories +
-                '}';
+            "id=" + id +
+            ", dateTime=" + dateTime +
+            ", description='" + description + '\'' +
+            ", calories=" + calories +
+            '}';
+    }
+
+    public interface Validation {
     }
 }

@@ -5,7 +5,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
-import ru.javawebinar.topjava.to.MealTO;
 import ru.javawebinar.topjava.to.MealWithExceed;
 import ru.javawebinar.topjava.util.DateTimeUtil;
 import ru.javawebinar.topjava.util.MealsUtil;
@@ -57,13 +56,6 @@ public abstract class AbstractMealController {
         service.update(meal, userId);
     }
 
-    public void update(MealTO mealTO, int id) {
-        int userId = SecurityUtil.authUserId();
-        assureIdConsistent(mealTO, id);
-        log.info("update {} for user {}", mealTO, userId);
-        service.update(mealTO, userId);
-    }
-
     /**
      * <ol>Filter separately
      * <li>by date</li>
@@ -75,10 +67,10 @@ public abstract class AbstractMealController {
         log.info("getBetween dates({} - {}) time({} - {}) for user {}", startDate, endDate, startTime, endTime, userId);
 
         List<Meal> mealsDateFiltered = service.getBetweenDates(
-                orElse(startDate, DateTimeUtil.MIN_DATE), orElse(endDate, DateTimeUtil.MAX_DATE), userId);
+            orElse(startDate, DateTimeUtil.MIN_DATE), orElse(endDate, DateTimeUtil.MAX_DATE), userId);
 
         return MealsUtil.getFilteredWithExceeded(mealsDateFiltered, SecurityUtil.authUserCaloriesPerDay(),
-                orElse(startTime, LocalTime.MIN), orElse(endTime, LocalTime.MAX)
+            orElse(startTime, LocalTime.MIN), orElse(endTime, LocalTime.MAX)
         );
     }
 }

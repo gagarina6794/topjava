@@ -1,7 +1,6 @@
 package ru.javawebinar.topjava.util;
 
 import ru.javawebinar.topjava.model.Meal;
-import ru.javawebinar.topjava.to.MealTO;
 import ru.javawebinar.topjava.to.MealWithExceed;
 
 import java.time.LocalDate;
@@ -29,34 +28,18 @@ public class MealsUtil {
 
     private static List<MealWithExceed> getFilteredWithExceeded(Collection<Meal> meals, int caloriesPerDay, Predicate<Meal> filter) {
         Map<LocalDate, Integer> caloriesSumByDate = meals.stream()
-                .collect(
-                        Collectors.groupingBy(Meal::getDate, Collectors.summingInt(Meal::getCalories))
+            .collect(
+                Collectors.groupingBy(Meal::getDate, Collectors.summingInt(Meal::getCalories))
 //                      Collectors.toMap(Meal::getDate, Meal::getCalories, Integer::sum)
-                );
+            );
 
         return meals.stream()
-                .filter(filter)
-                .map(meal -> createWithExceed(meal, caloriesSumByDate.get(meal.getDate()) > caloriesPerDay))
-                .collect(toList());
+            .filter(filter)
+            .map(meal -> createWithExceed(meal, caloriesSumByDate.get(meal.getDate()) > caloriesPerDay))
+            .collect(toList());
     }
 
     public static MealWithExceed createWithExceed(Meal meal, boolean exceeded) {
         return new MealWithExceed(meal.getId(), meal.getDateTime(), meal.getDescription(), meal.getCalories(), exceeded);
-    }
-
-    public static Meal createNewFromTO(MealTO newMeal) {
-        return new Meal(null, newMeal.getDateTime(),newMeal.getDescription(), newMeal.getCalories());
-    }
-
-    public static MealTO asTO(Meal meal) {
-        return new MealTO(meal.getId(), meal.getDateTime(), meal.getDescription(),meal.getCalories());
-    }
-
-    public static Meal updateFromTO(Meal meal, MealTO mealTO) {
-        meal.setDateTime(mealTO.getDateTime());
-        meal.setDescription(mealTO.getDescription());
-        meal.setCalories(mealTO.getCalories());
-
-        return meal;
     }
 }
