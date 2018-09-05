@@ -62,8 +62,7 @@ $(function () {
     });
 });
 
-const lang = window.navigator.language;
-if ( lang  != "en" ) {
+if ( window.navigator.language  != "en" ) {
     $.datetimepicker.setLocale("ru");
 }
 
