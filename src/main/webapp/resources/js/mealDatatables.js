@@ -62,7 +62,10 @@ $(function () {
     });
 });
 
-$.datetimepicker.setLocale("ru");
+const lang = window.navigator.language;
+if ( lang  != "en" ) {
+    $.datetimepicker.setLocale("ru");
+}
 
 $("#startDate").datetimepicker({
     format: 'Y-m-d',
