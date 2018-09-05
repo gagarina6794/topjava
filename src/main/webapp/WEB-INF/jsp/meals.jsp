@@ -8,11 +8,7 @@
 <body>
 <script type="text/javascript" src="resources/js/datatablesUtil.js" defer></script>
 <script type="text/javascript" src="resources/js/mealDatatables.js" defer></script>
-
-<script type="text/javascript" src="resources/datetimepicker/jquery.js"></script>
-<script type="text/javascript" src="resources/datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 <jsp:include page="fragments/bodyHeader.jsp"/>
-
 
 <div class="jumbotron pt-4">
     <div class="container">
@@ -90,7 +86,7 @@
 
                     <div class="form-group">
                         <label for="dateTime" class="col-form-label"><spring:message code="meal.dateTime"/></label>
-                        <input type="datetime-local" class="form-control" id="dateTime" name="dateTime"
+                        <input type="text" class="form-control" id="dateTime" name="dateTime"
                                placeholder="<spring:message code="meal.dateTime"/>">
                     </div>
 
@@ -127,17 +123,5 @@
     i18n["addTitle"] = '<spring:message code="meal.add"/>';
     i18n["editTitle"] = '<spring:message code="meal.edit"/>';
     <%@ include file="Localisation.jspf"%>
-
-    jQuery.datetimepicker.setLocale('ru');
-
-    jQuery('#startDate , #endDate').datetimepicker({
-        timepicker: false,
-        format: 'Y-m-d',
-    });
-
-    jQuery('#startTime, #endTime').datetimepicker({
-        datepicker: false,
-        format: 'H:i'
-    });
 </script>
 </html>
