@@ -3,6 +3,7 @@ package ru.javawebinar.topjava;
 import org.springframework.test.web.servlet.ResultMatcher;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
+import ru.javawebinar.topjava.web.json.JsonUtil;
 
 import java.util.Arrays;
 
@@ -35,6 +36,10 @@ public class UserTestData {
     }
 
     public static ResultMatcher contentJson(User expected) {
-        return content().json(writeIgnoreProps(expected, "registered"));
+        return content().json(writeIgnoreProps(expected, "registered", "password"));
+    }
+
+    public static String jsonWithPassword(User user, String passw) {
+        return JsonUtil.writeAdditionProps(user, "password", passw);
     }
 }
