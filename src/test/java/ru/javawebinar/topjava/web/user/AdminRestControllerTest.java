@@ -89,7 +89,8 @@ class AdminRestControllerTest extends AbstractControllerTest {
         mockMvc.perform(put(REST_URL + USER_ID)
                 .contentType(MediaType.APPLICATION_JSON)
                 .with(userHttpBasic(ADMIN))
-                .content(JsonUtil.writeValue(updated)))
+                .content(JsonUtil.writeValue(updated))
+            .content(jsonWithPassword(updated, updated.getPassword())))
                 .andExpect(status().isNoContent());
 
         assertMatch(userService.get(USER_ID), updated);
@@ -118,5 +119,27 @@ class AdminRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(contentJson(ADMIN, USER)));
+    }
+
+    @Test
+    void testNotValidUpdate() throws Exception {
+        User updated = new User(USER);
+        updated.setName("");
+        updated.setRoles(Collections.singletonList(Role.ROLE_ADMIN));
+        mockMvc.perform(put(REST_URL + USER_ID)
+            .contentType(MediaType.APPLICATION_JSON)
+            .with(userHttpBasic(ADMIN))
+            .content(JsonUtil.writeValue(updated)))
+            .andExpect(status().isUnprocessableEntity());
+    }
+
+    @Test
+    void testNotValidCreate() throws Exception {
+        User expected = new User(null, "New", "new@gmail.com", "new", 2300, Role.ROLE_USER, Role.ROLE_ADMIN);
+        ResultActions action = mockMvc.perform(post(REST_URL)
+            .contentType(MediaType.APPLICATION_JSON)
+            .with(userHttpBasic(ADMIN))
+            .content(jsonWithPassword(expected, "new")))
+            .andExpect(status().isUnprocessableEntity());
     }
 }
