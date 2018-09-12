@@ -22,7 +22,8 @@ import ru.javawebinar.topjava.util.exception.IllegalRequestDataException;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.StringJoiner;
+import java.util.ArrayList;
+import java.util.List;
 
 import static ru.javawebinar.topjava.util.exception.ErrorType.*;
 
@@ -30,6 +31,9 @@ import static ru.javawebinar.topjava.util.exception.ErrorType.*;
 @Order(Ordered.HIGHEST_PRECEDENCE + 5)
 public class ExceptionInfoHandler {
     private static Logger log = LoggerFactory.getLogger(ExceptionInfoHandler.class);
+
+    private final static String USERS_UNIQUE_EMAIL_IDX_ERROR = "users_unique_email_idx";
+    private final static String MEALS_UNIQUE_USER_DATE_TIME_IDX_ERROR = "meals_unique_user_datetime_idx";
 
     //  http://stackoverflow.com/a/22358422/548473
     @ResponseStatus(value = HttpStatus.UNPROCESSABLE_ENTITY)
@@ -41,7 +45,16 @@ public class ExceptionInfoHandler {
     @ResponseStatus(value = HttpStatus.CONFLICT)  // 409
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ErrorInfo conflict(HttpServletRequest req, DataIntegrityViolationException e) {
-        return logAndGetErrorInfo(req, e, true, DATA_ERROR);
+        String error = ValidationUtil.getMessage(ValidationUtil.getRootCause(e)).toLowerCase();
+        String errorMessage = null;
+        if (error.contains(USERS_UNIQUE_EMAIL_IDX_ERROR)) {
+            errorMessage = "User with this email already exists";
+        } else if (error.contains(MEALS_UNIQUE_USER_DATE_TIME_IDX_ERROR)) {
+            errorMessage = "You already have meal with this date/time";
+        }
+        return errorMessage != null ?
+            logAndGetErrorInfo(req, e, true, VALIDATION_ERROR, errorMessage) :
+            logAndGetErrorInfo(req, e, true, DATA_ERROR) ;
     }
 
     @ResponseStatus(value = HttpStatus.UNPROCESSABLE_ENTITY)  // 422
@@ -49,17 +62,14 @@ public class ExceptionInfoHandler {
         BindException.class, MethodArgumentNotValidException.class})
     public ErrorInfo illegalRequestDataError(HttpServletRequest req, Exception e) {
         BindingResult bindingResult;
-        String delimiter = "";
         if (e instanceof BindException) {
             bindingResult = ((BindException) e).getBindingResult();
-            delimiter = "<br>";
         } else if (e instanceof MethodArgumentNotValidException) {
             bindingResult = ((MethodArgumentNotValidException) e).getBindingResult();
-            delimiter = ", ";
         } else {
             return logAndGetErrorInfo(req, e, false, VALIDATION_ERROR);
         }
-        return logAndGetErrorInfo(req, e, false, VALIDATION_ERROR, formatBindingResult(bindingResult, delimiter));
+        return logAndGetErrorInfo(req, e, false, VALIDATION_ERROR, formatBindingResult(bindingResult));
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -76,11 +86,14 @@ public class ExceptionInfoHandler {
         } else {
             log.warn("{} at request  {}: {}", errorType, req.getRequestURL(), rootCause.toString());
         }
-        return new ErrorInfo(req.getRequestURL(), errorType, (messages.length != 0) ? messages[0] : ValidationUtil.getMessage(rootCause));
+        return new ErrorInfo(req.getRequestURL(), errorType,
+            messages.length == 0 ?
+                new String[]{ValidationUtil.getMessage(rootCause)} :
+                messages);
     }
 
-    private static String formatBindingResult(BindingResult result, String delimiter) {
-        StringJoiner joiner = new StringJoiner(delimiter);
+    private static String[] formatBindingResult(BindingResult result) {
+        List<String> messages = new ArrayList<>();
         result.getFieldErrors().forEach(
             fe -> {
                 String msg = fe.getDefaultMessage();
@@ -88,8 +101,8 @@ public class ExceptionInfoHandler {
                 if (!msg.startsWith(fe.getField())) {
                     msg = fe.getField() + ' ' + msg;
                 }
-                joiner.add(msg);
+                messages.add(msg);
             });
-        return joiner.toString();
+        return messages.toArray(new String[0]);
     }
 }
